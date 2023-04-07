@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="ff8a5c8e-3459-419b-b9c5-968c3eea1671" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../assignment2.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../JAVA/BinaryTree/hw3-cmpt225-spring23.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../JAVA/BinaryTree/src/TestingAssignment3.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../JAVA/BinaryTree/src/binarytree/BTNode.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../JAVA/BinaryTree/src/binarytree/BinaryTree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../CMPT135/WEEK11/Assignment" beforeDir="false" afterPath="$PROJECT_DIR$/../../../CMPT135/WEEK11/Assignment" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../hw1-cmpt225-spring23" beforeDir="false" afterPath="$PROJECT_DIR$/../../hw1-cmpt225-spring23" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testingLinkedList.java" beforeDir="false" afterPath="$PROJECT_DIR$/testingLinkedList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../CMPT295" beforeDir="false" afterPath="$PROJECT_DIR$/../../../CMPT295" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../../.." />
+  </component>
+  <component name="ProjectId" id="2M8xjbHEkx5U4KNkjEwdcga9ysg" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "/Users/Main DATA/CODE/Code/CMPT---/CMPT225/hw2-cmpt225-spring23/src"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ff8a5c8e-3459-419b-b9c5-968c3eea1671" name="Changes" comment="" />
+      <created>1677163146293</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1677163146293</updated>
+    </task>
+    <servers />
+  </component>
+</project>
