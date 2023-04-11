@@ -166,7 +166,8 @@ public class BFS_SolveWithLowerHeapUse extends PuzzleBoard implements BFS{
             PuzzleBoard tempPuzzleBoard = new PuzzleBoard(this);
             //System.out.println("" + listMovements);
 
-            if (isSolution(listMovements, tempPuzzleBoard)){
+            if (isSolution(listMovements, tempPuzzleBoard))
+            {
                 //System.out.println("Solved: " + listMovements);
                 PuzzleBoard check = new PuzzleBoard(this);
                 for (int i = 0; i < listMovements.size(); i++){

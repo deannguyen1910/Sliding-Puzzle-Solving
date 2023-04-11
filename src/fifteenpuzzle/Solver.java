@@ -1,6 +1,5 @@
 package fifteenpuzzle;
-import fifteenpuzzle.SolvingAlgorithms.BFS_SolveWithLowerHeapUse;
-import fifteenpuzzle.puzzle.PuzzleBoard;
+
 import java.lang.invoke.MethodHandles;
 import fifteenpuzzle.SolvingAlgorithms.*;
 
@@ -26,7 +25,9 @@ public class Solver extends BFS_SolveWithInformedSearch{
 		Solver a = new Solver(args[0], args[1]);
 
 		//a.toString();
-		System.out.println(a.solution());
+		//System.out.println(2* Math.log((a.getSize() - 0) * (a.getSize() - 0))/Math.log(3));
+		a.solution();
+		//System.out.println(a.countCorrectOnThatLevel(0));
 		//a.BFS_SolveWithLowerHeapUse();
 		//System.out.println(Solver.orderOfFirstChildOf(7));
 		//System.out.println(maxLevelThatVariableCanHandle());
@@ -40,6 +41,5 @@ public class Solver extends BFS_SolveWithInformedSearch{
 		//File input = new File(args[0]);
 		// solve...
 		//File output = new File(args[1]);
-
 	}
 }

@@ -3,5 +3,5 @@ import fifteenpuzzle.puzzle.*;;
 
 public interface BFS{
     
-    String solution();
+    void solution();
 }

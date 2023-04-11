@@ -2,15 +2,26 @@ package fifteenpuzzle.SolvingAlgorithms;
 import fifteenpuzzle.puzzle.PuzzleBoard;
 import java.util.Queue;
 import java.util.PriorityQueue;
-import java.lang.reflect.Array;
+import java.time.temporal.TemporalAdjuster;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class BFS_SolveWithInformedSearch extends PuzzleBoard implements BFS{
     static final char UP = 'U';
     static final char DOWN = 'D';
     static final char LEFT = 'L';
     static final char RIGHT = 'R';
-    int theGoodIndexOfSolution = 2;
+    static int howGoodTheSolutionIndex = 3;
+    static int levelBFSBeforeSubGraph = 11;
+    //static int timeCalledCycle = 0;
+
+    class NoSubGraphException extends Exception{
+        private static final long serialVersionUID = 1L;
+
+        public NoSubGraphException(String message) {
+            super(message);
+        }
+    }
 
     private BFS_SolveWithInformedSearch(PuzzleBoard item){ // deep copy
         super(item);
@@ -150,43 +161,83 @@ public class BFS_SolveWithInformedSearch extends PuzzleBoard implements BFS{
         return tempPath;
     }
 
-    private boolean isAGoodMove(char moveDirection, final PuzzleBoard boardCurrent, final ArrayList<Character> listMovements){
+    // private boolean isAGoodMove(char moveDirection, final PuzzleBoard boardCurrent, final ArrayList<Character> listMovements){
+    //     //return true;
+    //     PuzzleBoard temp = new PuzzleBoard(boardCurrent);
+    //     Integer[] atFirst = boardCurrent.valueDisplacement();
+    //     temp.move(moveDirection);
+    //     Integer[] atLater = temp.valueDisplacement();
+
+    //     if ((atFirst[0] > atLater[0]) ||
+    //         (-atFirst[1] > -(atLater[1])) ||
+    //         (atFirst[2] > (atLater[2])) ||
+    //         (-atFirst[3] > -(atLater[3]))){
+    //             return true;
+    //     }
+    //     else{
+    //         int countBadMove = 0;
+    //         // check if there is a bad move once before, if so, it should return false
+    //         temp = new PuzzleBoard(this);
+    //         atFirst = boardCurrent.valueDisplacement();
+    //         for (int i = 0; i < listMovements.size(); i++){
+    //             temp.move(listMovements.get(i));
+    //             atLater = temp.valueDisplacement();
+    //             if (!((atFirst[0]) >  atLater[0] ||
+    //                 (-(atFirst[1]) > -(atLater[1])) ||
+    //                 ((atFirst[2]) > (atLater[2])) ||
+    //                 (-(atFirst[3]) > -(atLater[3])))){
+    //                     countBadMove++;
+    //             }
+    //             atFirst[0] = atLater[0];
+    //             atFirst[1] = atLater[1];
+    //             atFirst[2] = atLater[2];
+    //             atFirst[3] = atLater[3];
+    //             if (countBadMove >= howGoodTheSolutionIndex){
+    //                 return false;
+    //             } 
+    //         }
+    //         return true;
+    //     }
+    // }
+
+    private boolean isAGoodMoveForLevel(char moveDirection, final PuzzleBoard boardCurrent, final ArrayList<Character> listMovements, int level){
         PuzzleBoard temp = new PuzzleBoard(boardCurrent);
         Integer[] atFirst = boardCurrent.valueDisplacement();
         temp.move(moveDirection);
         Integer[] atLater = temp.valueDisplacement();
-        
-        
-        if ((Math.abs(atFirst[0]) > Math.abs(atLater[0])) ||
-            (Math.abs(atFirst[1]) > Math.abs(atLater[1])) ||
-            (Math.abs(atFirst[2]) > Math.abs(atLater[2])) ||
-            (Math.abs(atFirst[3]) > Math.abs(atLater[3]))){
+
+        if ((atFirst[0] > atLater[0]) ||
+            (-atFirst[1] > -(atLater[1])) ||
+            (atFirst[2] > (atLater[2])) ||
+            (-atFirst[3] > -(atLater[3]))){
                 return true;
         }
         else{
             int countBadMove = 0;
             // check if there is a bad move once before, if so, it should return false
             temp = new PuzzleBoard(this);
-            atFirst = boardCurrent.valueDisplacement();
+            atFirst = boardCurrent.valueDisplacementLevel(level);
             for (int i = 0; i < listMovements.size(); i++){
                 temp.move(listMovements.get(i));
-                atLater = temp.valueDisplacement();
-                if (!((Math.abs(atFirst[0]) > Math.abs(atLater[0])) ||
-                    (Math.abs(atFirst[1]) > Math.abs(atLater[1])) ||
-                    (Math.abs(atFirst[2]) > Math.abs(atLater[2])) ||
-                    (Math.abs(atFirst[3]) > Math.abs(atLater[3])))){
+                atLater = temp.valueDisplacementLevel(level);
+                if (!((atFirst[0]) > atLater[0] ||
+                    (-(atFirst[1]) > -(atLater[1])) ||
+                    ((atFirst[2]) > (atLater[2])) ||
+                    (-(atFirst[3]) > -(atLater[3])))){
                         countBadMove++;
                 }
                 atFirst[0] = atLater[0];
                 atFirst[1] = atLater[1];
                 atFirst[2] = atLater[2];
                 atFirst[3] = atLater[3];
-                if (countBadMove >= theGoodIndexOfSolution){
+                
+                if (countBadMove > howGoodTheSolutionIndex){
                     return false;
-                } 
+                }
             }
             return true;
         }
+        
     }
 
     public static int maxLevelThatVariableCanHandle(){
@@ -204,226 +255,286 @@ public class BFS_SolveWithInformedSearch extends PuzzleBoard implements BFS{
         return countLevel - 3;
     }
 
-    public String solution(){
-        Queue<Long> queue = new PriorityQueue<Long>();
-        //long count = 0;        
-        // the order is Up Down Left Right // N is for skipping but still add into queue
-        final long UP = 0;
-        final long DOWN = 1;
-        final long LEFT = 2;
-        final long RIGHT = 3;
-        // init the 1st-level of tree
-        if (super.hasUp()){
-            queue.add(UP);
-        }
-        if (super.hasDown()){
-            queue.add(DOWN);
-        }
-        if (super.hasLeft()){
-            queue.add(LEFT);
-        }
-        if (super.hasRight()){
-            queue.add(RIGHT);
-        }
+    public void solution(){
+        PuzzleBoard initBoard = new PuzzleBoard(this);
+        ArrayList<BFS_SolveWithInformedSearch> listTemp = new ArrayList<BFS_SolveWithInformedSearch>(); 
+        BFS_SolveWithInformedSearch solvingBoard = new BFS_SolveWithInformedSearch(this);
         
-        int MAX_STEP = maxLevelThatVariableCanHandle();
-        
-        ArrayList<BFS_SolveWithInformedSearch> subGraph = new ArrayList<BFS_SolveWithInformedSearch>();
+        solvingBoard = solvingBoard.rootGraphSolution('N', 0, listTemp);
+        while (solvingBoard == null){
+            howGoodTheSolutionIndex++;
+            solvingBoard = new BFS_SolveWithInformedSearch(this);
+            solvingBoard = solvingBoard.rootGraphSolution('N', 0, listTemp);
+        }
+        listTemp.add(solvingBoard);
 
-        while(!queue.isEmpty() && queue.peek() < (2 * (long)Math.pow(3, MAX_STEP) - 2)){
-            long popQueue = queue.poll();
-            ArrayList<Character> listMovements = new ArrayList<Character>();
+        for (int level = 0; level < this.getSize() - 1; level++){
+            howGoodTheSolutionIndex = 3;
+            while(!solvingBoard.isSolvedLevel(level)){
+                //System.out.println(solvingBoard.toMatrix());
+                //System.out.println(solvingBoard.toListMoveString());
+                BFS_SolveWithInformedSearch tempSolvingBoard = new BFS_SolveWithInformedSearch(solvingBoard);
+                BFS_SolveWithInformedSearch temp = tempSolvingBoard.rootGraphSolution(tempSolvingBoard.getLastMovement(), level, listTemp);
+                if (temp != null){
+                    solvingBoard = temp;
+                    listTemp.add(solvingBoard);
+                }else{
+                    howGoodTheSolutionIndex++;
+                }
+                
+                
+                //System.out.println("-------------------");
+            }
             
-            listMovements = getPath(popQueue);
-            PuzzleBoard tempPuzzleBoard = new PuzzleBoard(this);
-            //System.out.println("" + listMovements);
-
-            if (isSolution(listMovements, tempPuzzleBoard)){
-                //System.out.println("Solved: " + listMovements);
-                return "Solved " + listMovements.toString();
-            }
-            if (listMovements.size() == 16){
-                BFS_SolveWithInformedSearch temp = bfs_SolveWithInformedSearch(listMovements);
-                subGraph.add(temp);
-            }
-
-            Character lastMovements = listMovements.get(listMovements.size() - 1);
-            long orderOfFirstChild = orderOfFirstChildOf(popQueue);
-            //System.out.println("The order: " + popQueue + " " );
-            
-
-            if (lastMovements == 'U'){
-                if(tempPuzzleBoard.hasUp() && isAGoodMove(this.UP, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 0);
-                }
-                if(tempPuzzleBoard.hasLeft() && isAGoodMove(this.LEFT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 1);
-                }
-                if(tempPuzzleBoard.hasRight() && isAGoodMove(this.RIGHT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 2);
-                }
-                continue;
-            }
-            if (lastMovements == 'D'){
-                if(tempPuzzleBoard.hasDown() && isAGoodMove(this.DOWN, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 0);
-                }
-                if(tempPuzzleBoard.hasLeft() && isAGoodMove(this.LEFT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 1);
-                }
-                if(tempPuzzleBoard.hasRight() && isAGoodMove(this.RIGHT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 2);
-                }
-                continue;
-            }
-            if (lastMovements == 'L'){
-                if(tempPuzzleBoard.hasUp() && isAGoodMove(this.UP, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 0);
-                }
-                if(tempPuzzleBoard.hasDown() && isAGoodMove(this.DOWN, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 1);
-                }
-                if(tempPuzzleBoard.hasLeft() && isAGoodMove(this.LEFT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 2);
-                }
-                continue;
-            }
-            if (lastMovements == 'R'){
-                if(tempPuzzleBoard.hasUp() && isAGoodMove(this.UP, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 0);
-                }
-                if(tempPuzzleBoard.hasDown() && isAGoodMove(this.DOWN, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 1);
-                }
-                if(tempPuzzleBoard.hasRight() && isAGoodMove(this.RIGHT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 2);
-                }
-                continue;
-            }     
+             
+            //System.out.println("Done Level " + level + " -------------------------------------");
         }
-
-        System.out.println("There is " + subGraph.size() + " subgraphs");
+        //System.out.println(solvingBoard.isSolved());
+       // System.out.println(solvingBoard.toMatrix());
+        //System.out.println(solvingBoard.toListMoveString());
         
-      
-        //now try to solve each 
-        System.out.println("----------------------------------");
-        for (int i = 0; i < subGraph.size(); i++){
-            System.out.println(subGraph.get(i).listMoveString());   
-            System.out.println(subGraph.get(i).toMatrix());
-        }
-        return "Error";
+        initBoard.outputSolutionFile(solvingBoard.getListMovements());
 
+        //return "Done";
+    }
+    
+    private boolean isSameSubGraphOnThatLevel(BFS_SolveWithInformedSearch subGraph, int level){
+        for (int i = 0; i < this.getSize(); i++){
+            for (int j = 0; j < this.getSize(); j++){
+                if (this.getPuzzle()[i][j] != subGraph.getPuzzle()[i][j]){
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
+    private boolean hasCircleMove(final BFS_SolveWithInformedSearch subGraph){
+        {
+            if (subGraph.getListMovements().size() < 12) return false;
+            ArrayList<Character> list = new ArrayList<Character>(); 
+
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size() - 1));
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size()  - 2));
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size()  - 3));
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size()  - 4));
+            int sumVertical = 0;
+            int sumHorizontal = 0;
+            
+            for (int listIndex = 0; listIndex < list.size(); listIndex++){
+                if (list.get(listIndex) == 'U'){
+                    sumVertical--;
+                }
+                if (list.get(listIndex) == 'D'){
+                    sumVertical++;
+                }
+                if (list.get(listIndex) == 'L'){
+                    sumHorizontal--;
+                }
+                if (list.get(listIndex) == 'R'){
+                    sumHorizontal++;
+                }
+            }
+
+            if (sumHorizontal == 0 && sumVertical == 0){
+                return true;
+            }
 
 
-    
-    public String subGraphSolution(){
+            list = new ArrayList<Character>(); 
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size()  - 5));
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size()  - 6));
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size()  - 7));
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size()  - 8));
+            sumVertical = 0;
+            sumHorizontal = 0;
+            
+            for (int listIndex = 0; listIndex < list.size(); listIndex++){
+                if (list.get(listIndex) == 'U'){
+                    sumVertical--;
+                }
+                if (list.get(listIndex) == 'D'){
+                    sumVertical++;
+                }
+                if (list.get(listIndex) == 'L'){
+                    sumHorizontal--;
+                }
+                if (list.get(listIndex) == 'R'){
+                    sumHorizontal++;
+                }
+            }
+
+            if (sumHorizontal == 0 && sumVertical == 0){
+                return true;
+            }
+
+
+            list = new ArrayList<Character>(); 
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size()  - 9));
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size()  - 10));
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size() - 11));
+            list.add(subGraph.getListMovements().get(subGraph.getListMovements().size()  - 12));
+            sumVertical = 0;
+            sumHorizontal = 0;
+            
+            for (int listIndex = 0; listIndex < list.size(); listIndex++){
+                if (list.get(listIndex) == 'U'){
+                    sumVertical--;
+                }
+                if (list.get(listIndex) == 'D'){
+                    sumVertical++;
+                }
+                if (list.get(listIndex) == 'L'){
+                    sumHorizontal--;
+                }
+                if (list.get(listIndex) == 'R'){
+                    sumHorizontal++;
+                }
+            }
+
+            if (sumHorizontal == 0 && sumVertical == 0){
+                return true;
+            }
+
+                
+            return false;
+        }
+    }
+
+    private boolean hasCycle(final BFS_SolveWithInformedSearch subGraph, final ArrayList<BFS_SolveWithInformedSearch> listSubGraphBefore, int level){
+        for (int i = listSubGraphBefore.size() - 1; i >= 0; i--){
+            if (subGraph.isSameSubGraphOnThatLevel(listSubGraphBefore.get(i), level)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public BFS_SolveWithInformedSearch rootGraphSolution(char lastMoveDirection, int level, final ArrayList<BFS_SolveWithInformedSearch> listSubGraphBefore){
         Queue<Long> queue = new PriorityQueue<Long>();
-        //long count = 0;        
-        // the order is Up Down Left Right // N is for skipping but still add into queue
+        //this.finalize();;
+        //long count = 0;
+        // the order is Up Down Left Right // N is for skipping but still add into queue 
         final long UP = 0;
         final long DOWN = 1;
         final long LEFT = 2;
         final long RIGHT = 3;
+        //int MAX_STEP = maxLevelThatVariableCanHandle();
         // init the 1st-level of tree
-        if (super.hasUp()){
+        if (super.hasUp(level) && lastMoveDirection != BFS_SolveWithInformedSearch.DOWN){
             queue.add(UP);
         }
-        if (super.hasDown()){
+        if (super.hasDown(level) && lastMoveDirection != BFS_SolveWithInformedSearch.UP){
             queue.add(DOWN);
         }
-        if (super.hasLeft()){
+        if (super.hasLeft(level) && lastMoveDirection != BFS_SolveWithInformedSearch.RIGHT){
             queue.add(LEFT);
         }
-        if (super.hasRight()){
+        if (super.hasRight(level) && lastMoveDirection != BFS_SolveWithInformedSearch.LEFT){
             queue.add(RIGHT);
         }
         
-        int MAX_STEP = maxLevelThatVariableCanHandle();
-        
         ArrayList<BFS_SolveWithInformedSearch> subGraph = new ArrayList<BFS_SolveWithInformedSearch>();
 
-        while(!queue.isEmpty() && queue.peek() < (2 * (long)Math.pow(3, MAX_STEP) - 2)){
+        while(!queue.isEmpty()){ //
             long popQueue = queue.poll();
             ArrayList<Character> listMovements = new ArrayList<Character>();
             
             listMovements = getPath(popQueue);
             PuzzleBoard tempPuzzleBoard = new PuzzleBoard(this);
             //System.out.println("" + listMovements);
-
-            if (isSolution(listMovements, tempPuzzleBoard)){
+            if (listMovements.size() == levelBFSBeforeSubGraph + 1) break;
+            if (isSolution(listMovements, tempPuzzleBoard, level)){
                 //System.out.println("Solved: " + listMovements);
-                return "Solved " + listMovements.toString();
+                BFS_SolveWithInformedSearch temp = bfs_SolveWithInformedSearch(listMovements);
+                return temp;
             }
-            if (listMovements.size() == 17){
+            if (listMovements.size() == levelBFSBeforeSubGraph){
                 BFS_SolveWithInformedSearch temp = bfs_SolveWithInformedSearch(listMovements);
                 subGraph.add(temp);
             }
-
-            Character lastMovements = listMovements.get(listMovements.size() - 1);
-            long orderOfFirstChild = orderOfFirstChildOf(popQueue);
-            //System.out.println("The order: " + popQueue + " " );
-            
-
-            if (lastMovements == 'U'){
-                if(tempPuzzleBoard.hasUp() && isAGoodMove(this.UP, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 0);
+            else{
+                Character lastMovements = listMovements.get(listMovements.size() - 1);
+                long orderOfFirstChild = orderOfFirstChildOf(popQueue);
+                //System.out.println("The order: " + popQueue + " " );
+                //detect cycle
+                if (lastMovements == 'U'){
+                    if(tempPuzzleBoard.hasUp(level) && isAGoodMoveForLevel(this.UP, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 0);
+                    }
+                    if(tempPuzzleBoard.hasLeft(level) && isAGoodMoveForLevel(this.LEFT, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 1);
+                    }
+                    if(tempPuzzleBoard.hasRight(level) && isAGoodMoveForLevel(this.RIGHT, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 2);
+                    }
+                    continue;
                 }
-                if(tempPuzzleBoard.hasLeft() && isAGoodMove(this.LEFT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 1);
+                if (lastMovements == 'D'){
+                    if(tempPuzzleBoard.hasDown(level) && isAGoodMoveForLevel(this.DOWN, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 0);
+                    }
+                    if(tempPuzzleBoard.hasLeft(level) && isAGoodMoveForLevel(this.LEFT, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 1);
+                    }
+                    if(tempPuzzleBoard.hasRight(level) && isAGoodMoveForLevel(this.RIGHT, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 2);
+                    }
+                    continue;
                 }
-                if(tempPuzzleBoard.hasRight() && isAGoodMove(this.RIGHT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 2);
+                if (lastMovements == 'L'){
+                    if(tempPuzzleBoard.hasUp(level) && isAGoodMoveForLevel(this.UP, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 0);
+                    }
+                    if(tempPuzzleBoard.hasDown(level) && isAGoodMoveForLevel(this.DOWN, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 1);
+                    }
+                    if(tempPuzzleBoard.hasLeft(level) && isAGoodMoveForLevel(this.LEFT, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 2);
+                    }
+                    continue;
                 }
-                continue;
+                if (lastMovements == 'R'){
+                    if(tempPuzzleBoard.hasUp(level) && isAGoodMoveForLevel(this.UP, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 0);
+                    }
+                    if(tempPuzzleBoard.hasDown(level) && isAGoodMoveForLevel(this.DOWN, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 1);
+                    }
+                    if(tempPuzzleBoard.hasRight(level) && isAGoodMoveForLevel(this.RIGHT, tempPuzzleBoard, listMovements, level)){
+                        queue.add(orderOfFirstChild + 2);
+                    }
+                    continue;
+                }     
             }
-            if (lastMovements == 'D'){
-                if(tempPuzzleBoard.hasDown() && isAGoodMove(this.DOWN, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 0);
-                }
-                if(tempPuzzleBoard.hasLeft() && isAGoodMove(this.LEFT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 1);
-                }
-                if(tempPuzzleBoard.hasRight() && isAGoodMove(this.RIGHT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 2);
-                }
-                continue;
-            }
-            if (lastMovements == 'L'){
-                if(tempPuzzleBoard.hasUp() && isAGoodMove(this.UP, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 0);
-                }
-                if(tempPuzzleBoard.hasDown() && isAGoodMove(this.DOWN, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 1);
-                }
-                if(tempPuzzleBoard.hasLeft() && isAGoodMove(this.LEFT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 2);
-                }
-                continue;
-            }
-            if (lastMovements == 'R'){
-                if(tempPuzzleBoard.hasUp() && isAGoodMove(this.UP, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 0);
-                }
-                if(tempPuzzleBoard.hasDown() && isAGoodMove(this.DOWN, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 1);
-                }
-                if(tempPuzzleBoard.hasRight() && isAGoodMove(this.RIGHT, tempPuzzleBoard, listMovements)){
-                    queue.add(orderOfFirstChild + 2);
-                }
-                continue;
-            }     
         }
 
-        System.out.println("There is " + subGraph.size() + " subgraphs");
+        //System.out.println("There is " + subGraph.size() + " subgraphs");
         
-        
-        //now try to solve each 
-        System.out.println("----------------------------------");
-        for (int i = 0; i < subGraph.size(); i++){
-            //System.out.println(subGraphSolution());
+        try{
+            BFS_SolveWithInformedSearch bestSubGraph;
+            if (subGraph.isEmpty()){throw new NoSubGraphException("No Subgraph");}
+            bestSubGraph = new BFS_SolveWithInformedSearch(subGraph.get(0));
+            //System.out.println("----------------------------------");
+            for (int i = 1; i < subGraph.size(); i++){
+                /// choose
+                if (!bestSubGraph.isBetterThanForTheLevel(subGraph.get(i), level)){
+                    if (!hasCycle(subGraph.get(i), listSubGraphBefore, level) && !hasCircleMove(subGraph.get(i))) /// make sure there is no duplicate  && hasCircleMove(subGraph.get(i))
+                    {   
+                        bestSubGraph = new BFS_SolveWithInformedSearch(subGraph.get(i));
+                    }
+                }
+            }
+            //hasCycle(bestSubGraph, initState);
+            return bestSubGraph;
+            //System.out.println(bestSubGraph.toMatrix());
+            //System.out.println(bestSubGraph.listMoveString());
+            //return bestSubGraph.subGraphSolution(bestSubGraph.getLastMovement());
+        }catch(NoSubGraphException e){
+            //System.out.println("subGraph is 0");
+            return null;
+
         }
-        return "Error";
     }
 }
